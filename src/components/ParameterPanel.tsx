@@ -61,15 +61,18 @@ export default function ParameterPanel({
   totalPlanned,
 }: ParameterPanelProps): JSX.Element {
   return (
-    <div className="rounded-2xl border border-slate-200 p-4 shadow-sm">
-      <h2 className="font-semibold">Parameter</h2>
+    <aside className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
+      <div className="flex items-center justify-between">
+        <h2 className="font-semibold text-slate-900">Steuerung</h2>
+        <div className="text-xs text-slate-500">Geplant: {totalPlanned.toFixed(1)} h</div>
+      </div>
 
-      <div className="mt-3">
-        <div className="text-sm text-slate-600">Ansicht</div>
-        <div className="mt-2 flex gap-2">
+      <div className="mt-4">
+        <div className="text-xs uppercase tracking-wide text-slate-500">Ansicht</div>
+        <div className="mt-2 grid grid-cols-3 gap-2">
           <button
             type="button"
-            className={`rounded-xl px-3 py-2 text-sm border ${
+            className={`rounded-xl px-2 py-2 text-xs border transition ${
               viewMode === "month" ? "bg-slate-900 text-white border-slate-900" : "border-slate-300 hover:bg-slate-50"
             }`}
             onClick={() => setViewMode("month")}
@@ -78,144 +81,127 @@ export default function ParameterPanel({
           </button>
           <button
             type="button"
-            className={`rounded-xl px-3 py-2 text-sm border ${
-              viewMode === "timeline"
-                ? "bg-slate-900 text-white border-slate-900"
-                : "border-slate-300 hover:bg-slate-50"
+            className={`rounded-xl px-2 py-2 text-xs border transition ${
+              viewMode === "timeline" ? "bg-slate-900 text-white border-slate-900" : "border-slate-300 hover:bg-slate-50"
             }`}
             onClick={() => setViewMode("timeline")}
           >
-            Timeline (scroll)
+            Timeline
           </button>
           <button
             type="button"
-            className={`rounded-xl px-3 py-2 text-sm border ${
+            className={`rounded-xl px-2 py-2 text-xs border transition ${
               viewMode === "bars" ? "bg-slate-900 text-white border-slate-900" : "border-slate-300 hover:bg-slate-50"
             }`}
             onClick={() => setViewMode("bars")}
           >
-            Balkendiagramm
+            Balken
           </button>
         </div>
-        <div className="text-xs text-slate-500 mt-2">
-          Monat = klassischer Monatskalender - Timeline = fortlaufende Wochen - Balkendiagramm = aggregierte
-          Auswertung.
-        </div>
       </div>
 
-      <div className="mt-4">
-        <button
-          type="button"
-          className="rounded-xl border border-slate-300 px-3 py-2 text-sm hover:bg-slate-50"
-          onClick={() => setShowAdvanced((v) => !v)}
-        >
-          {showAdvanced ? "Erweitert ausblenden" : "Erweitert einblenden"}
-        </button>
-        <div className="text-xs text-slate-500 mt-2">
-          Basis zeigt nur Pflichtfelder. Erweitert enthält Feinsteuerung und Anzeigeoptionen.
-        </div>
-      </div>
-
-      <div className="grid grid-cols-2 gap-3 mt-3">
-        <label className="text-sm">
-          <div className="text-slate-600">Projektstart</div>
-          <input
-            className="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2"
-            type="date"
-            value={projectStart}
-            onChange={(e) => setProjectStart(e.target.value)}
-          />
-        </label>
-
-        <label className="text-sm">
-          <div className="text-slate-600">Projektende</div>
-          <input
-            className="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2"
-            type="date"
-            value={projectEnd}
-            onChange={(e) => setProjectEnd(e.target.value)}
-          />
-        </label>
-
-        <label className="text-sm">
-          <div className="text-slate-600">Sprintlänge (Wochen)</div>
-          <input
-            className="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2"
-            type="number"
-            min={1}
-            max={12}
-            value={sprintWeeks}
-            onChange={(e) => setSprintWeeks(Number(e.target.value))}
-          />
-        </label>
-
-        <label className="text-sm col-span-2 rounded-xl border border-blue-200 bg-blue-50 px-3 py-2 block">
-          <div className="text-slate-600">Start Sprint 1</div>
-          <input
-            className="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 bg-white"
-            type="date"
-            value={sprintStart}
-            onChange={(e) => setSprintStart(e.target.value)}
-          />
-          <div className="text-xs text-slate-600 mt-1 capitalize">
-            {sprint1StartLabel}
-            {sprintAtProjectStart ? ` - Projektstart liegt in Sprint ${sprintAtProjectStart}` : ""}
-          </div>
-        </label>
-
-        <label className="text-sm">
-          <div className="text-slate-600">Gesamtbudget (h)</div>
-          <input
-            className="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2"
-            type="number"
-            min={0}
-            value={totalBudget}
-            onChange={(e) => setTotalBudget(Number(e.target.value))}
-          />
-        </label>
-
-        <label className="text-sm">
-          <div className="text-slate-600">Monats-Cap (h)</div>
-          <input
-            className="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2"
-            type="number"
-            min={0}
-            value={monthlyCap}
-            onChange={(e) => setMonthlyCap(Number(e.target.value))}
-          />
-          <div className="text-xs text-slate-500 mt-1">Max. Stunden pro Kalendermonat.</div>
-        </label>
-
-        {showAdvanced && (
+      <section className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-3">
+        <div className="text-sm font-medium text-slate-800">Zeitraum & Sprint-Rhythmus</div>
+        <div className="grid grid-cols-2 gap-3 mt-3">
           <label className="text-sm">
-            <div className="text-slate-600">Sprint-Cap Default (h)</div>
+            <div className="text-slate-600">Projektstart</div>
             <input
-              className="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2"
+              className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2"
+              type="date"
+              value={projectStart}
+              onChange={(e) => setProjectStart(e.target.value)}
+            />
+          </label>
+
+          <label className="text-sm">
+            <div className="text-slate-600">Projektende</div>
+            <input
+              className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2"
+              type="date"
+              value={projectEnd}
+              onChange={(e) => setProjectEnd(e.target.value)}
+            />
+          </label>
+
+          <label className="text-sm">
+            <div className="text-slate-600">Sprintlänge</div>
+            <div className="mt-1 relative">
+              <input
+                className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 pr-14"
+                type="number"
+                min={1}
+                max={12}
+                value={sprintWeeks}
+                onChange={(e) => setSprintWeeks(Number(e.target.value))}
+              />
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-500">Wochen</span>
+            </div>
+          </label>
+
+          <label className="text-sm col-span-2 rounded-xl border border-blue-200 bg-blue-50 px-3 py-2 block">
+            <div className="text-slate-600">Start Sprint 1</div>
+            <input
+              className="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 bg-white"
+              type="date"
+              value={sprintStart}
+              onChange={(e) => setSprintStart(e.target.value)}
+            />
+            <div className="text-xs text-slate-600 mt-1">
+              {sprint1StartLabel}
+              {sprintAtProjectStart ? ` · Projektstart liegt in Sprint ${sprintAtProjectStart}` : ""}
+            </div>
+          </label>
+        </div>
+      </section>
+
+      <section className="mt-3 rounded-2xl border border-slate-200 bg-slate-50 p-3">
+        <div className="text-sm font-medium text-slate-800">Budget-Grenzen</div>
+        <div className="grid grid-cols-2 gap-3 mt-3">
+          <label className="text-sm">
+            <div className="text-slate-600">Gesamtbudget (h)</div>
+            <input
+              className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2"
               type="number"
               min={0}
-              value={sprintCapDefault}
-              onChange={(e) => setSprintCapDefault(Number(e.target.value))}
+              value={totalBudget}
+              onChange={(e) => setTotalBudget(Number(e.target.value))}
             />
-            <div className="text-xs text-slate-500 mt-1">Fallback, wenn Sprint keinen eigenen Cap hat.</div>
           </label>
-        )}
 
-        {showAdvanced && (
-          <label className="text-sm col-span-2">
-            <div className="text-slate-600">Monat anzeigen</div>
+          <label className="text-sm">
+            <div className="text-slate-600">Monats-Cap (h)</div>
             <input
-              className="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2"
-              type="date"
-              value={monthShown}
-              onChange={(e) => setMonthShown(e.target.value)}
+              className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2"
+              type="number"
+              min={0}
+              value={monthlyCap}
+              onChange={(e) => setMonthlyCap(Number(e.target.value))}
             />
-            <div className="text-xs text-slate-500 mt-1">Tipp: den 1. des Monats wählen.</div>
+            <div className="text-xs text-slate-500 mt-1">Maximal pro Kalendermonat.</div>
           </label>
-        )}
-      </div>
+        </div>
+      </section>
 
-      <div className="mt-4">
-        <div className="text-sm text-slate-600">Karteninfos anzeigen</div>
+      <section className="mt-3 rounded-2xl border border-slate-200 p-3">
+        <div className="flex items-center justify-between">
+          <div className="text-sm font-medium text-slate-800">Karteninfos</div>
+          <button
+            type="button"
+            className="text-xs rounded-lg border border-slate-300 px-2 py-1 hover:bg-slate-50"
+            onClick={() =>
+              setCardInfo({
+                plannedToday: true,
+                restSprint: true,
+                restMonth: true,
+                restTotal: true,
+                sprintAvg: true,
+              })
+            }
+          >
+            Alle an
+          </button>
+        </div>
+
         <div className="mt-2 grid grid-cols-2 gap-2 text-sm">
           <label className="inline-flex items-center gap-2">
             <input
@@ -223,7 +209,7 @@ export default function ParameterPanel({
               checked={cardInfo.plannedToday}
               onChange={(e) => setCardInfo((p) => ({ ...p, plannedToday: e.target.checked }))}
             />
-            Heute
+            Geplant heute
           </label>
           <label className="inline-flex items-center gap-2">
             <input
@@ -231,7 +217,7 @@ export default function ParameterPanel({
               checked={cardInfo.restSprint}
               onChange={(e) => setCardInfo((p) => ({ ...p, restSprint: e.target.checked }))}
             />
-            Restsprint Aufwand
+            Rest Sprint
           </label>
           <label className="inline-flex items-center gap-2">
             <input
@@ -255,45 +241,71 @@ export default function ParameterPanel({
               checked={cardInfo.sprintAvg}
               onChange={(e) => setCardInfo((p) => ({ ...p, sprintAvg: e.target.checked }))}
             />
-            Durchschnitt Sprint
+            Sprint-Durchschnitt
           </label>
         </div>
-      </div>
+      </section>
 
-      <div className="mt-4 text-sm">
-        <div className="flex items-center justify-between">
-          <span className="text-slate-600">Geplant gesamt</span>
-          <span className="font-semibold">{totalPlanned.toFixed(1)} h</span>
-        </div>
+      <div className="mt-3">
+        <button
+          type="button"
+          className="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm hover:bg-slate-50"
+          onClick={() => setShowAdvanced((v) => !v)}
+        >
+          {showAdvanced ? "Erweiterte Optionen ausblenden" : "Erweiterte Optionen einblenden"}
+        </button>
       </div>
 
       {showAdvanced && (
-        <div className="mt-4 rounded-2xl border border-slate-200 p-4 shadow-sm">
-          <div className="flex items-center justify-between gap-2">
-            <h2 className="font-semibold">Sprint-Caps</h2>
-            <button
-              type="button"
-              className="rounded-xl border border-slate-300 px-3 py-1 text-xs hover:bg-slate-50"
-              onClick={() => {
-                const nextNr = sprintCaps.length ? Math.max(...sprintCaps.map((s) => s.nr)) + 1 : 1;
-                setSprintCaps((prev) => [...prev, { nr: nextNr, cap: sprintCapDefault }]);
-              }}
-            >
-              + Sprint-Cap
-            </button>
-          </div>
-          <div className="text-xs text-slate-600 mt-1">Setze hier die Max-Stunden pro Sprint.</div>
+        <section className="mt-3 rounded-2xl border border-slate-200 bg-slate-50 p-3 space-y-3">
+          <div className="text-sm font-medium text-slate-800">Erweitert</div>
 
-          <div className="mt-3 grid grid-cols-2 gap-3">
-            {sprintCaps
-              .slice()
-              .sort((a, b) => a.nr - b.nr)
-              .map((sc) => (
-                <label key={sc.nr} className="text-sm">
-                  <div className="text-slate-600">Sprint {sc.nr} (h)</div>
-                  <div className="mt-1 flex gap-2">
+          <label className="text-sm block">
+            <div className="text-slate-600">Sprint-Cap Default (h)</div>
+            <input
+              className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2"
+              type="number"
+              min={0}
+              value={sprintCapDefault}
+              onChange={(e) => setSprintCapDefault(Number(e.target.value))}
+            />
+          </label>
+
+          <label className="text-sm block">
+            <div className="text-slate-600">Monat anzeigen</div>
+            <input
+              className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2"
+              type="date"
+              value={monthShown}
+              onChange={(e) => setMonthShown(e.target.value)}
+            />
+            <div className="text-xs text-slate-500 mt-1">Für Monatsansicht ideal: den 1. des Monats wählen.</div>
+          </label>
+
+          <div className="rounded-xl border border-slate-200 bg-white p-3">
+            <div className="flex items-center justify-between gap-2">
+              <h3 className="text-sm font-medium text-slate-800">Sprint-Caps</h3>
+              <button
+                type="button"
+                className="rounded-lg border border-slate-300 px-2 py-1 text-xs hover:bg-slate-50"
+                onClick={() => {
+                  const nextNr = sprintCaps.length ? Math.max(...sprintCaps.map((s) => s.nr)) + 1 : 1;
+                  setSprintCaps((prev) => [...prev, { nr: nextNr, cap: sprintCapDefault }]);
+                }}
+              >
+                + Sprint
+              </button>
+            </div>
+
+            <div className="mt-3 grid grid-cols-1 gap-2">
+              {sprintCaps
+                .slice()
+                .sort((a, b) => a.nr - b.nr)
+                .map((sc) => (
+                  <div key={sc.nr} className="rounded-lg border border-slate-200 p-2 flex items-center gap-2">
+                    <div className="text-sm text-slate-700 w-24 shrink-0">Sprint {sc.nr}</div>
                     <input
-                      className="w-full rounded-xl border border-slate-300 px-3 py-2"
+                      className="w-full rounded-lg border border-slate-300 px-2 py-1.5 text-sm"
                       type="number"
                       min={0}
                       value={sc.cap}
@@ -304,19 +316,17 @@ export default function ParameterPanel({
                     />
                     <button
                       type="button"
-                      className="rounded-xl border border-slate-300 px-3 py-2 text-xs hover:bg-slate-50"
+                      className="rounded-lg border border-slate-300 px-2 py-1.5 text-xs hover:bg-slate-50"
                       onClick={() => setSprintCaps((prev) => prev.filter((x) => x.nr !== sc.nr))}
                     >
                       Entfernen
                     </button>
                   </div>
-                </label>
-              ))}
+                ))}
+            </div>
           </div>
-
-          <div className="text-xs text-slate-500 mt-3">Hinweis: Nicht konfigurierte Sprints nutzen den Default.</div>
-        </div>
+        </section>
       )}
-    </div>
+    </aside>
   );
 }

@@ -40,6 +40,8 @@ interface CalendarPanelProps {
   barData: BarData;
   badge: (status: Status) => string;
   cardInfo: CardInfo;
+  monthShown: string;
+  setMonthShown: Dispatch<SetStateAction<string>>;
   selectedDateISO: string | null;
   setSelectedDateISO: Dispatch<SetStateAction<string | null>>;
   dailyRows: DailyRow[];
@@ -54,6 +56,8 @@ export default function CalendarPanel({
   barData,
   badge,
   cardInfo,
+  monthShown,
+  setMonthShown,
   selectedDateISO,
   setSelectedDateISO,
   dailyRows,
@@ -102,21 +106,78 @@ export default function CalendarPanel({
     };
   }, [dailyRows, selectedDateISO]);
 
+  const monthNavigation = useMemo(() => {
+    const base = parseISODate(monthShown);
+    const current = new Date(base.getFullYear(), base.getMonth(), 1);
+    const prev = new Date(current.getFullYear(), current.getMonth() - 1, 1);
+    const next = new Date(current.getFullYear(), current.getMonth() + 1, 1);
+    const today = new Date();
+    const thisMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+    return {
+      prevISO: toISODate(prev),
+      nextISO: toISODate(next),
+      thisISO: toISODate(thisMonth),
+    };
+  }, [monthShown]);
+
   return (
-    <div className="rounded-2xl border border-slate-200 p-4 shadow-sm lg:col-span-2">
+    <section className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
       {viewMode === "month" ? (
         <>
           <div className="flex items-center justify-between gap-2 flex-wrap">
-            <h2 className="font-semibold">Kalender: {cal.month.toLocaleDateString("de-DE", { month: "long", year: "numeric" })}</h2>
-            <div className="text-sm text-slate-600">
-              Monat geplant: <span className="font-semibold">{cal.monthPlanned.toFixed(1)} h</span> / Cap {monthlyCap}h
+            <div>
+              <h2 className="font-semibold text-slate-900">
+                Monatsansicht: {cal.month.toLocaleDateString("de-DE", { month: "long", year: "numeric" })}
+              </h2>
+              <p className="text-xs text-slate-500 mt-1">Klicke einen Tag an, um die Detailrechnung darunter zu sehen.</p>
+            </div>
+            <div className="flex items-center gap-2 flex-wrap justify-end">
+              <button
+                type="button"
+                className="rounded-xl border border-slate-300 px-2.5 py-1.5 text-sm hover:bg-slate-50"
+                onClick={() => setMonthShown(monthNavigation.prevISO)}
+              >
+                ◀
+              </button>
+              <button
+                type="button"
+                className="rounded-xl border border-slate-300 px-2.5 py-1.5 text-sm hover:bg-slate-50"
+                onClick={() => setMonthShown(monthNavigation.thisISO)}
+              >
+                Heute
+              </button>
+              <button
+                type="button"
+                className="rounded-xl border border-slate-300 px-2.5 py-1.5 text-sm hover:bg-slate-50"
+                onClick={() => setMonthShown(monthNavigation.nextISO)}
+              >
+                ▶
+              </button>
+              <input
+                className="rounded-xl border border-slate-300 px-2.5 py-1.5 text-sm"
+                type="date"
+                value={monthShown}
+                onChange={(e) => setMonthShown(e.target.value)}
+                title="Monat anzeigen"
+              />
+              <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700">
+                Monat geplant: <span className="font-semibold">{cal.monthPlanned.toFixed(1)} h</span> / {monthlyCap} h
+              </div>
             </div>
           </div>
 
           <div className="grid grid-cols-7 gap-2 mt-3 text-xs text-slate-600">
-            {["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"].map((d) => (
-              <div key={d} className="px-2">
-                {d}
+            {[
+              { k: "Mo", v: "Mo" },
+              { k: "Di", v: "Di" },
+              { k: "Mi", v: "Mi" },
+              { k: "Do", v: "Do" },
+              { k: "Fr", v: "Fr" },
+              { k: "Sa", v: "Sa" },
+              { k: "So", v: "So" },
+            ].map((d) => (
+              <div key={d.k} className="px-2 py-1 rounded-lg bg-slate-50 border border-slate-200 text-center font-medium">
+                {d.v}
               </div>
             ))}
           </div>
@@ -137,27 +198,38 @@ export default function CalendarPanel({
       ) : viewMode === "timeline" ? (
         <>
           <div className="flex items-center justify-between gap-2 flex-wrap">
-            <h2 className="font-semibold">Timeline (fortlaufend)</h2>
+            <div>
+              <h2 className="font-semibold text-slate-900">Timeline (fortlaufende Wochen)</h2>
+              <p className="text-xs text-slate-500 mt-1">Ideal für längere Projekte und Sprintwechsel über Monatsgrenzen.</p>
+            </div>
             <div className="text-sm text-slate-600">
-              Projekt: {fmtDE(parsed.start)} - {fmtDE(parsed.end)}
+              {fmtDE(parsed.start)} - {fmtDE(parsed.end)}
             </div>
           </div>
 
           <div className="grid grid-cols-7 gap-2 mt-3 text-xs text-slate-600">
-            {["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"].map((d) => (
-              <div key={d} className="px-2">
-                {d}
+            {[
+              { k: "Mo", v: "Mo" },
+              { k: "Di", v: "Di" },
+              { k: "Mi", v: "Mi" },
+              { k: "Do", v: "Do" },
+              { k: "Fr", v: "Fr" },
+              { k: "Sa", v: "Sa" },
+              { k: "So", v: "So" },
+            ].map((d) => (
+              <div key={d.k} className="px-2 py-1 rounded-lg bg-slate-50 border border-slate-200 text-center font-medium">
+                {d.v}
               </div>
             ))}
           </div>
 
-          <div className="mt-2 max-h-[520px] overflow-y-auto pr-1">
+          <div className="mt-2 max-h-[560px] overflow-y-auto pr-1">
             <div className="space-y-3">
               {timeline.weeks.map((w, wi) => (
                 <div key={wi}>
                   {w.monthLabel && (
-                    <div className="sticky top-0 z-10">
-                      <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-slate-200 bg-white shadow-sm text-sm font-medium">
+                    <div className="sticky top-0 z-10 pb-1">
+                      <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-slate-200 bg-white shadow-sm text-xs font-medium text-slate-700">
                         {w.monthLabel}
                       </div>
                     </div>
@@ -182,19 +254,22 @@ export default function CalendarPanel({
       ) : (
         <>
           <div className="flex items-center justify-between gap-2 flex-wrap">
-            <h2 className="font-semibold">Balkendiagramm (Auswertung)</h2>
+            <div>
+              <h2 className="font-semibold text-slate-900">Balkenansicht (Aggregation)</h2>
+              <p className="text-xs text-slate-500 mt-1">Vergleicht geplante Stunden direkt mit Gesamt-, Monats- und Sprint-Caps.</p>
+            </div>
             <div className="text-sm text-slate-600">
-              Projekt: {fmtDE(parsed.start)} - {fmtDE(parsed.end)}
+              {fmtDE(parsed.start)} - {fmtDE(parsed.end)}
             </div>
           </div>
 
-          <div className="mt-4 space-y-5">
-            <div className="rounded-xl border border-slate-200 p-3">
+          <div className="mt-4 space-y-4">
+            <div className="rounded-2xl border border-slate-200 p-3">
               <div className="text-sm font-semibold mb-2">Gesamtbudget</div>
               <BarRow label="Gesamt" planned={barData.total.planned} cap={barData.total.cap} />
             </div>
 
-            <div className="rounded-xl border border-slate-200 p-3">
+            <div className="rounded-2xl border border-slate-200 p-3">
               <div className="text-sm font-semibold mb-2">Monate</div>
               <div className="space-y-3">
                 {barData.months.map((m) => (
@@ -203,7 +278,7 @@ export default function CalendarPanel({
               </div>
             </div>
 
-            <div className="rounded-xl border border-slate-200 p-3">
+            <div className="rounded-2xl border border-slate-200 p-3">
               <div className="text-sm font-semibold mb-2">Sprints</div>
               <div className="space-y-3">
                 {barData.sprints.map((s) => (
@@ -215,44 +290,39 @@ export default function CalendarPanel({
         </>
       )}
 
-      <div className="mt-4 rounded-xl border border-slate-200 p-3">
-        <div className="flex items-center justify-between gap-2">
-          <h3 className="font-semibold text-sm">Details zum ausgewählten Tag</h3>
+      <div className="mt-4 rounded-2xl border border-slate-200 p-3 bg-slate-50">
+        <div className="flex items-center justify-between gap-2 flex-wrap">
+          <h3 className="font-semibold text-sm text-slate-900">Tagesdetails</h3>
           {selectedDayInfo?.selectedDate && <div className="text-xs text-slate-600">{fmtDE(selectedDayInfo.selectedDate)}</div>}
         </div>
 
         {!selectedDayInfo ? (
-          <div className="text-sm text-slate-500 mt-2">Bitte einen Tag anklicken.</div>
+          <div className="text-sm text-slate-500 mt-2">Noch kein Tag ausgewählt. Klicke in der Ansicht auf ein Datum.</div>
         ) : !selectedDayInfo.inProject ? (
           <div className="text-sm text-slate-500 mt-2">Der ausgewählte Tag liegt außerhalb des Projektzeitraums.</div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-3 mt-3 text-sm">
-            <div className="rounded-lg border border-slate-200 p-2">
-              <div className="text-slate-600">Budget übrig (Monat)</div>
-              <div className="font-semibold">{selectedDayInfo.remainingMonthBudget?.toFixed(1)}h</div>
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-3 mt-3 text-sm">
+            <div className="rounded-xl border border-slate-200 bg-white p-3">
+              <div className="text-slate-500 text-xs uppercase">Rest Monat</div>
+              <div className="font-semibold text-base">{selectedDayInfo.remainingMonthBudget?.toFixed(1)}h</div>
             </div>
-            <div className="rounded-lg border border-slate-200 p-2">
-              <div className="text-slate-600">Budget übrig (Projektzeitraum)</div>
-              <div className="font-semibold">{selectedDayInfo.remainingProjectBudget?.toFixed(1)}h</div>
+            <div className="rounded-xl border border-slate-200 bg-white p-3">
+              <div className="text-slate-500 text-xs uppercase">Rest Gesamt</div>
+              <div className="font-semibold text-base">{selectedDayInfo.remainingProjectBudget?.toFixed(1)}h</div>
             </div>
-            <div className="rounded-lg border border-slate-200 p-2">
-              <div className="text-slate-600">Zusätzliches Budget nötig (Monat)</div>
-              <div className="font-semibold">{selectedDayInfo.additionalMonthBudgetNeeded?.toFixed(1)}h</div>
-              <div className="text-xs mt-1 text-slate-600">Restaufwand Monat: {selectedDayInfo.remainingMonthEffort?.toFixed(1)}h</div>
+            <div className="rounded-xl border border-slate-200 bg-white p-3">
+              <div className="text-slate-500 text-xs uppercase">Zusätzlich nötig</div>
+              <div className="font-semibold text-base">{selectedDayInfo.additionalMonthBudgetNeeded?.toFixed(1)}h</div>
+              <div className="text-xs mt-1 text-slate-500">Restaufwand Monat: {selectedDayInfo.remainingMonthEffort?.toFixed(1)}h</div>
             </div>
-            <div className="rounded-lg border border-slate-200 p-2">
-              <div className="text-slate-600">
-                Offener Task-Aufwand
-                {selectedDayInfo.sprintNr ? ` (Sprint ${selectedDayInfo.sprintNr})` : ""}
-              </div>
-              <div className="font-semibold">{selectedDayInfo.openTaskEffort?.toFixed(1)}h</div>
+            <div className="rounded-xl border border-slate-200 bg-white p-3">
+              <div className="text-slate-500 text-xs uppercase">Offener Task-Aufwand</div>
+              <div className="font-semibold text-base">{selectedDayInfo.openTaskEffort?.toFixed(1)}h</div>
+              {selectedDayInfo.sprintNr ? <div className="text-xs mt-1 text-slate-500">Sprint {selectedDayInfo.sprintNr}</div> : null}
             </div>
-            <div className="rounded-lg border border-slate-200 p-2">
-              <div className="text-slate-600">
-                Nötiges Budget
-                {selectedDayInfo.sprintNr ? ` (bis Ende Sprint ${selectedDayInfo.sprintNr})` : ""}
-              </div>
-              <div className="font-semibold">{selectedDayInfo.neededBudget?.toFixed(1)}h</div>
+            <div className="rounded-xl border border-slate-200 bg-white p-3">
+              <div className="text-slate-500 text-xs uppercase">Nötiges Budget</div>
+              <div className="font-semibold text-base">{selectedDayInfo.neededBudget?.toFixed(1)}h</div>
               <div className={`text-xs mt-1 ${(selectedDayInfo.budgetGap ?? 0) >= 0 ? "text-emerald-700" : "text-rose-700"}`}>
                 {(selectedDayInfo.budgetGap ?? 0) >= 0
                   ? `Puffer: ${(selectedDayInfo.budgetGap ?? 0).toFixed(1)}h`
@@ -265,11 +335,10 @@ export default function CalendarPanel({
 
       <div className="mt-3 text-xs text-slate-600 flex gap-2 flex-wrap">
         <span className={`px-2 py-1 rounded-full ${badge("ok")}`}>Grün: Planung möglich</span>
-        <span className={`px-2 py-1 rounded-full ${badge("bad")}`}>Rot: Planung unmöglich</span>
-        <span className="px-2 py-1 rounded-full border border-slate-300">Sprintwechsel: blaue vertikale Linie</span>
-        <span className="px-2 py-1 rounded-full border border-slate-300">Sprint-Blöcke: dezente Hintergrundtönung</span>
-        <span className="px-2 py-1 rounded-full border border-slate-300">Monatsanfang: gelbe Outline + Label</span>
+        <span className={`px-2 py-1 rounded-full ${badge("bad")}`}>Rot: Cap überschritten</span>
+        <span className="px-2 py-1 rounded-full border border-slate-300">Blaue Linie: Sprintwechsel</span>
+        <span className="px-2 py-1 rounded-full border border-slate-300">Gelbe Markierung: Monatsanfang</span>
       </div>
-    </div>
+    </section>
   );
 }

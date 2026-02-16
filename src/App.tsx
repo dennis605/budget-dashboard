@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import type { JSX } from "react";
 import type { CardInfo, SprintCap, Status, Task, ViewMode } from "./types";
 import TaskTable from "./components/TaskTable";
@@ -76,64 +76,101 @@ function BudgetSprintDashboardInner(): JSX.Element {
   const timeline = useTimeline({ dailyRows, parsed, monthlyCap, totalBudget, sprintCapDefault, sprintDays, sprints, sprintAvg: sprintStats.avg });
   const badge = useCallback((s: Status): string => (s === "ok" ? "bg-emerald-100 text-emerald-900" : "bg-white text-rose-900"), []);
 
+  const remainingTotal = useMemo(() => {
+    if (!dailyRows.length) return totalBudget;
+    return dailyRows[dailyRows.length - 1]?.remainingTotal ?? totalBudget;
+  }, [dailyRows, totalBudget]);
+
+  const statusChip = burn.dateBudgetBreak
+    ? { label: `Budget reißt ab: ${fmtDE(burn.dateBudgetBreak)}`, cls: "bg-rose-100 text-rose-800 border-rose-200" }
+    : { label: "Budget reicht im Zeitraum", cls: "bg-emerald-100 text-emerald-800 border-emerald-200" };
+
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex items-start justify-between gap-3 flex-wrap">
-        <div>
-          <h1 className="text-2xl font-semibold">Budget/Sprint Dashboard</h1>
-          <div className="text-sm text-slate-600 mt-1">Parametrisch: Projektzeitraum - Sprintlänge - Gesamtbudget - Monatscap - Sprintcaps - Tasks</div>
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
+      <div className="mx-auto max-w-[1440px] px-4 py-5 md:px-6 md:py-8 space-y-6">
+        <header className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+          <div className="flex items-start justify-between gap-4 flex-wrap">
+            <div>
+              <h1 className="text-2xl md:text-3xl font-semibold tracking-tight">Budget- & Sprintplanung</h1>
+              <p className="text-sm text-slate-600 mt-2">
+                Definiere Zeitraum, Budgets und Tasks. Die Ansichten zeigen sofort, wann ein Cap überschritten wird.
+              </p>
+            </div>
+            <span className={`rounded-full border px-3 py-1.5 text-sm font-medium ${statusChip.cls}`}>{statusChip.label}</span>
+          </div>
+
+          <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
+              <div className="text-xs uppercase tracking-wide text-slate-500">Geplant gesamt</div>
+              <div className="mt-1 text-xl font-semibold text-slate-900">{burn.totalPlanned.toFixed(1)} h</div>
+            </div>
+            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
+              <div className="text-xs uppercase tracking-wide text-slate-500">Rest Gesamtbudget</div>
+              <div className={`mt-1 text-xl font-semibold ${remainingTotal < 0 ? "text-rose-700" : "text-emerald-700"}`}>
+                {remainingTotal.toFixed(1)} h
+              </div>
+            </div>
+            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
+              <div className="text-xs uppercase tracking-wide text-slate-500">Projektzeitraum</div>
+              <div className="mt-1 text-base font-semibold text-slate-900">
+                {fmtDE(parsed.start)} - {fmtDE(parsed.end)}
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <div className="grid grid-cols-1 xl:grid-cols-[380px_1fr] gap-4 items-start">
+          <div className="xl:sticky xl:top-4">
+            <ParameterPanel
+              viewMode={viewMode}
+              setViewMode={setViewMode}
+              projectStart={projectStart}
+              setProjectStart={setProjectStart}
+              projectEnd={projectEnd}
+              setProjectEnd={setProjectEnd}
+              sprintWeeks={sprintWeeks}
+              setSprintWeeks={setSprintWeeks}
+              sprintStart={sprintStart}
+              setSprintStart={setSprintStart}
+              sprint1StartLabel={sprint1StartLabel}
+              sprintAtProjectStart={sprintAtProjectStart}
+              totalBudget={totalBudget}
+              setTotalBudget={setTotalBudget}
+              monthlyCap={monthlyCap}
+              setMonthlyCap={setMonthlyCap}
+              sprintCapDefault={sprintCapDefault}
+              setSprintCapDefault={setSprintCapDefault}
+              sprintCaps={sprintCaps}
+              setSprintCaps={setSprintCaps}
+              monthShown={monthShown}
+              setMonthShown={setMonthShown}
+              showAdvanced={showAdvanced}
+              setShowAdvanced={setShowAdvanced}
+              cardInfo={cardInfo}
+              setCardInfo={setCardInfo}
+              totalPlanned={burn.totalPlanned}
+            />
+          </div>
+
+          <div className="space-y-4">
+            <CalendarPanel
+              viewMode={viewMode}
+              parsed={parsed}
+              monthlyCap={monthlyCap}
+              cal={cal}
+              timeline={timeline}
+              barData={barData}
+              badge={badge}
+              cardInfo={cardInfo}
+              monthShown={monthShown}
+              setMonthShown={setMonthShown}
+              selectedDateISO={selectedDateISO}
+              setSelectedDateISO={setSelectedDateISO}
+              dailyRows={dailyRows}
+            />
+            <TaskTable tasks={tasks} setTasks={setTasks} />
+          </div>
         </div>
-        <span className={`px-3 py-1 rounded-full text-sm ${badge(burn.dateBudgetBreak ? "bad" : "ok")}`}>
-          {burn.dateBudgetBreak ? `Budget reißt ab: ${fmtDE(burn.dateBudgetBreak)}` : "Budget reicht im Zeitraum"}
-        </span>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <ParameterPanel
-          viewMode={viewMode}
-          setViewMode={setViewMode}
-          projectStart={projectStart}
-          setProjectStart={setProjectStart}
-          projectEnd={projectEnd}
-          setProjectEnd={setProjectEnd}
-          sprintWeeks={sprintWeeks}
-          setSprintWeeks={setSprintWeeks}
-          sprintStart={sprintStart}
-          setSprintStart={setSprintStart}
-          sprint1StartLabel={sprint1StartLabel}
-          sprintAtProjectStart={sprintAtProjectStart}
-          totalBudget={totalBudget}
-          setTotalBudget={setTotalBudget}
-          monthlyCap={monthlyCap}
-          setMonthlyCap={setMonthlyCap}
-          sprintCapDefault={sprintCapDefault}
-          setSprintCapDefault={setSprintCapDefault}
-          sprintCaps={sprintCaps}
-          setSprintCaps={setSprintCaps}
-          monthShown={monthShown}
-          setMonthShown={setMonthShown}
-          showAdvanced={showAdvanced}
-          setShowAdvanced={setShowAdvanced}
-          cardInfo={cardInfo}
-          setCardInfo={setCardInfo}
-          totalPlanned={burn.totalPlanned}
-        />
-
-        <CalendarPanel
-          viewMode={viewMode}
-          parsed={parsed}
-          monthlyCap={monthlyCap}
-          cal={cal}
-          timeline={timeline}
-          barData={barData}
-          badge={badge}
-          cardInfo={cardInfo}
-          selectedDateISO={selectedDateISO}
-          setSelectedDateISO={setSelectedDateISO}
-          dailyRows={dailyRows}
-        />
-
-        <TaskTable tasks={tasks} setTasks={setTasks} />
       </div>
     </div>
   );

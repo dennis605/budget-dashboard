@@ -20,9 +20,9 @@ function DayCellComponent({ c, badge, cardInfo, isSelected, onSelect }: DayCellP
 
   return (
     <div
-      className={`relative border rounded-2xl p-2 min-h-[86px] ${badge(c.status)} ${sprintTintClass(c.sprintNr)} ${
-        c.inProject ? "" : "opacity-40"
-      } ${c.status === "bad" ? "ring-2 ring-rose-500 border-rose-500" : ""} ${
+      className={`relative border rounded-2xl p-2.5 min-h-[96px] transition hover:shadow-sm ${badge(c.status)} ${sprintTintClass(
+        c.sprintNr
+      )} ${c.inProject ? "" : "opacity-50"} ${c.status === "bad" ? "ring-2 ring-rose-500 border-rose-500" : ""} ${
         isMonthStart ? "outline outline-2 outline-amber-400" : ""
       } ${isSelected ? "ring-2 ring-sky-500 border-sky-500" : ""}`}
       onClick={() => onSelect(toISODate(c.d))}
@@ -42,11 +42,6 @@ function DayCellComponent({ c, badge, cardInfo, isSelected, onSelect }: DayCellP
       }
     >
       {c.sprintStart && <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-blue-500" />}
-      {c.sprintStart && (
-        <div className="absolute left-1/2 -translate-x-1/2 top-1 text-[9px] font-semibold text-blue-700 bg-blue-100 px-1.5 py-0.5 rounded whitespace-nowrap">
-          Sprintwechsel
-        </div>
-      )}
 
       {isMonthStart && (
         <div className="absolute right-1 top-1 text-[9px] font-semibold text-amber-700 bg-amber-100 px-1.5 py-0.5 rounded">
@@ -54,47 +49,44 @@ function DayCellComponent({ c, badge, cardInfo, isSelected, onSelect }: DayCellP
         </div>
       )}
 
-      <div className="flex items-start justify-between">
+      <div className="flex items-start justify-between gap-2">
         <div>
-          <div className="text-sm font-semibold text-slate-900">{c.d.getDate()}</div>
+          <div className="text-sm font-semibold text-slate-900 leading-tight">{c.d.getDate()}</div>
           <div className="text-[10px] text-slate-500">{c.d.toLocaleDateString("de-DE", { weekday: "short" })}</div>
           {c.sprintNr ? (
-            <div className="text-[10px] text-slate-700">
-              Sprint {c.sprintNr}
-              {c.sprintDay ? ` - Tag ${c.sprintDay}/${c.sprintTotalDays}` : ""}
-            </div>
+            <div className="text-[10px] text-slate-700">Sprint {c.sprintNr}</div>
           ) : (
-            <div className="text-[10px] text-slate-500">Kein Sprint</div>
+            <div className="text-[10px] text-slate-500">Außerhalb Sprint</div>
           )}
         </div>
-        <div className={`text-[11px] font-medium ${c.status === "ok" ? "text-emerald-900" : "text-rose-700"}`}>
-          {c.statusLabel}
-        </div>
+        <span
+          className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${
+            c.status === "ok" ? "bg-emerald-100 text-emerald-800" : "bg-rose-100 text-rose-800"
+          }`}
+        >
+          {c.status === "ok" ? "OK" : "Cap"}
+        </span>
       </div>
 
-      {cardInfo.plannedToday && <div className="mt-2 text-[11px] text-slate-800">{c.planned.toFixed(1)}h heute</div>}
-      {cardInfo.restSprint &&
-        (c.sprintNr ? (
-          <div className="mt-1 text-[10px] text-slate-700">Restsprint Aufwand: {c.rS.toFixed(1)}h</div>
-        ) : (
-          <div className="mt-1 text-[10px] text-slate-500">Kein Sprint aktiv</div>
-        ))}
+      {cardInfo.plannedToday && <div className="mt-2 text-xs font-medium text-slate-900">{c.planned.toFixed(1)}h geplant</div>}
+
+      {cardInfo.restSprint && c.sprintNr && <div className="mt-1 text-[11px] text-slate-700">Sprint-Rest: {c.rS.toFixed(1)}h</div>}
+
       {cardInfo.restMonth && (
         <div className="mt-1">
-          <div className="text-[10px] text-slate-700">Rest Monat: {c.rM.toFixed(1)}h</div>
+          <div className="text-[11px] text-slate-700">Monat-Rest: {c.rM.toFixed(1)}h</div>
           {typeof monthRestPct === "number" && (
-            <div className="mt-1">
-              <div className="h-1.5 rounded-full bg-slate-200 overflow-hidden">
-                <div className={`h-full ${monthBarClass}`} style={{ width: `${monthRestPct}%` }} />
-              </div>
+            <div className="mt-1 h-1.5 rounded-full bg-slate-200 overflow-hidden">
+              <div className={`h-full ${monthBarClass}`} style={{ width: `${monthRestPct}%` }} />
             </div>
           )}
         </div>
       )}
-      {cardInfo.restTotal && <div className="text-[10px] text-slate-700">Rest Gesamt: {c.rT.toFixed(1)}h</div>}
+
+      {cardInfo.restTotal && <div className="mt-1 text-[11px] text-slate-700">Gesamt-Rest: {c.rT.toFixed(1)}h</div>}
 
       {cardInfo.sprintAvg && typeof c.avg === "number" && Number.isFinite(c.avg) && (
-        <div className="text-[10px] text-slate-500">Durchschnitt Sprint: {c.avg.toFixed(1)}h/AT</div>
+        <div className="mt-1 text-[10px] text-slate-500">Ø Sprint: {c.avg.toFixed(1)}h/AT</div>
       )}
     </div>
   );
