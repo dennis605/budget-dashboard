@@ -1,74 +1,30 @@
-# React + TypeScript + Vite
+# Budget Dashboard
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Ein React + TypeScript + Vite + Tailwind Dashboard zur Planung von Projektaufwand über Sprints, Monate und Gesamtbudget.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- Monatskalender, fortlaufende Timeline und Balkendiagramm
+- Budgetprüfung für Gesamtprojekt, Monat und Sprint-Caps
+- Konfigurierbare Sprint-Länge und Sprint-Caps (dynamisch)
+- Detailansicht pro ausgewähltem Tag
+- Task-Verteilung auf Arbeitstage im zugewiesenen Sprint
+- LocalStorage-Persistenz für Tasks, Zeitraum und Budget-Parameter
 
-## React Compiler
+## Installation
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Eingabefelder
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
-"# budget-dashboard" 
+- `Projektstart` / `Projektende`: Definiert den Auswertungszeitraum.
+- `Sprintlänge (Wochen)`: Länge eines Sprints in Wochen.
+- `Start Sprint 1`: Referenzdatum für Sprint-Nummerierung.
+- `Gesamtbudget (h)`: Maximales Budget für den gesamten Projektzeitraum.
+- `Monats-Cap (h)`: Maximales Budget pro Kalendermonat.
+- `Sprint-Cap Default (h)`: Fallback-Cap für nicht explizit konfigurierte Sprints.
+- `Sprint-Caps`: Individuelle Caps pro Sprintnummer.
+- `Tasks`: Name, Sprintnummer und Stunden je Task.
