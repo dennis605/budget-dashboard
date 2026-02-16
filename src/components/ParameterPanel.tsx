@@ -16,14 +16,24 @@ interface ParameterPanelProps {
   sprintAtProjectStart: number | null;
   totalBudget: number;
   setTotalBudget: Dispatch<SetStateAction<number>>;
+  effectiveTotalBudget: number;
   monthlyCap: number;
   setMonthlyCap: Dispatch<SetStateAction<number>>;
+  effectiveMonthlyCap: number;
   sprintCapDefault: number;
   setSprintCapDefault: Dispatch<SetStateAction<number>>;
+  effectiveSprintCapDefault: number;
   sprintCaps: SprintCap[];
   setSprintCaps: Dispatch<SetStateAction<SprintCap[]>>;
   monthShown: string;
   setMonthShown: Dispatch<SetStateAction<string>>;
+  autoBudgetFromFte: boolean;
+  setAutoBudgetFromFte: Dispatch<SetStateAction<boolean>>;
+  fteCurrent: number;
+  setFteCurrent: Dispatch<SetStateAction<number>>;
+  hoursPerDay: number;
+  setHoursPerDay: Dispatch<SetStateAction<number>>;
+  workdaysInProject: number;
   showAdvanced: boolean;
   setShowAdvanced: Dispatch<SetStateAction<boolean>>;
   cardInfo: CardInfo;
@@ -46,14 +56,24 @@ export default function ParameterPanel({
   sprintAtProjectStart,
   totalBudget,
   setTotalBudget,
+  effectiveTotalBudget,
   monthlyCap,
   setMonthlyCap,
+  effectiveMonthlyCap,
   sprintCapDefault,
   setSprintCapDefault,
+  effectiveSprintCapDefault,
   sprintCaps,
   setSprintCaps,
   monthShown,
   setMonthShown,
+  autoBudgetFromFte,
+  setAutoBudgetFromFte,
+  fteCurrent,
+  setFteCurrent,
+  hoursPerDay,
+  setHoursPerDay,
+  workdaysInProject,
   showAdvanced,
   setShowAdvanced,
   cardInfo,
@@ -155,29 +175,76 @@ export default function ParameterPanel({
       </section>
 
       <section className="mt-3 rounded-2xl border border-slate-200 bg-slate-50 p-3">
+        <div className="flex items-center justify-between gap-2">
+          <div className="text-sm font-medium text-slate-800">FTE-Szenario</div>
+          <label className="inline-flex items-center gap-2 text-xs text-slate-600">
+            <input
+              type="checkbox"
+              checked={autoBudgetFromFte}
+              onChange={(e) => setAutoBudgetFromFte(e.target.checked)}
+            />
+            Budget automatisch aus FTE ableiten
+          </label>
+        </div>
+        <div className="grid grid-cols-2 gap-3 mt-3">
+          <label className="text-sm col-span-2">
+            <div className="text-slate-600">Kunden-FTE</div>
+            <input
+              className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2"
+              type="number"
+              min={0}
+              step={0.1}
+              value={fteCurrent}
+              onChange={(e) => setFteCurrent(Number(e.target.value))}
+            />
+          </label>
+          <label className="text-sm col-span-2">
+            <div className="text-slate-600">Stunden pro Arbeitstag</div>
+            <input
+              className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2"
+              type="number"
+              min={1}
+              step={0.5}
+              value={hoursPerDay}
+              onChange={(e) => setHoursPerDay(Number(e.target.value))}
+            />
+          </label>
+        </div>
+        <div className="mt-2 text-xs text-slate-600">
+          Projektarbeitstage: {workdaysInProject} ·
+          abgeleitetes Budget: {effectiveTotalBudget.toFixed(1)}h · Monats-Cap: {effectiveMonthlyCap.toFixed(1)}h
+        </div>
+      </section>
+
+      <section className="mt-3 rounded-2xl border border-slate-200 bg-slate-50 p-3">
         <div className="text-sm font-medium text-slate-800">Budget-Grenzen</div>
         <div className="grid grid-cols-2 gap-3 mt-3">
           <label className="text-sm">
             <div className="text-slate-600">Gesamtbudget (h)</div>
             <input
-              className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2"
+              className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 disabled:bg-slate-100 disabled:text-slate-400"
               type="number"
               min={0}
               value={totalBudget}
               onChange={(e) => setTotalBudget(Number(e.target.value))}
+              disabled={autoBudgetFromFte}
             />
+            {autoBudgetFromFte && <div className="text-xs text-slate-500 mt-1">Auto: {effectiveTotalBudget.toFixed(1)}h</div>}
           </label>
 
           <label className="text-sm">
             <div className="text-slate-600">Monats-Cap (h)</div>
             <input
-              className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2"
+              className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 disabled:bg-slate-100 disabled:text-slate-400"
               type="number"
               min={0}
               value={monthlyCap}
               onChange={(e) => setMonthlyCap(Number(e.target.value))}
+              disabled={autoBudgetFromFte}
             />
-            <div className="text-xs text-slate-500 mt-1">Maximal pro Kalendermonat.</div>
+            <div className="text-xs text-slate-500 mt-1">
+              {autoBudgetFromFte ? `Auto: ${effectiveMonthlyCap.toFixed(1)}h` : "Maximal pro Kalendermonat."}
+            </div>
           </label>
         </div>
       </section>
@@ -263,12 +330,14 @@ export default function ParameterPanel({
           <label className="text-sm block">
             <div className="text-slate-600">Sprint-Cap Default (h)</div>
             <input
-              className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2"
+              className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 disabled:bg-slate-100 disabled:text-slate-400"
               type="number"
               min={0}
               value={sprintCapDefault}
               onChange={(e) => setSprintCapDefault(Number(e.target.value))}
+              disabled={autoBudgetFromFte}
             />
+            {autoBudgetFromFte && <div className="text-xs text-slate-500 mt-1">Auto: {effectiveSprintCapDefault.toFixed(1)}h</div>}
           </label>
 
           <label className="text-sm block">
@@ -287,15 +356,21 @@ export default function ParameterPanel({
               <h3 className="text-sm font-medium text-slate-800">Sprint-Caps</h3>
               <button
                 type="button"
-                className="rounded-lg border border-slate-300 px-2 py-1 text-xs hover:bg-slate-50"
+                className="rounded-lg border border-slate-300 px-2 py-1 text-xs hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
                 onClick={() => {
                   const nextNr = sprintCaps.length ? Math.max(...sprintCaps.map((s) => s.nr)) + 1 : 1;
                   setSprintCaps((prev) => [...prev, { nr: nextNr, cap: sprintCapDefault }]);
                 }}
+                disabled={autoBudgetFromFte}
               >
                 + Sprint
               </button>
             </div>
+            {autoBudgetFromFte && (
+              <div className="mt-2 rounded-lg border border-amber-200 bg-amber-50 px-2 py-1.5 text-xs text-amber-800">
+                Im FTE-Auto-Modus sind individuelle Sprint-Caps deaktiviert. Es gilt der abgeleitete Sprint-Default.
+              </div>
+            )}
 
             <div className="mt-3 grid grid-cols-1 gap-2">
               {sprintCaps
@@ -305,7 +380,7 @@ export default function ParameterPanel({
                   <div key={sc.nr} className="rounded-lg border border-slate-200 p-2 flex items-center gap-2">
                     <div className="text-sm text-slate-700 w-24 shrink-0">Sprint {sc.nr}</div>
                     <input
-                      className="w-full rounded-lg border border-slate-300 px-2 py-1.5 text-sm"
+                      className="w-full rounded-lg border border-slate-300 px-2 py-1.5 text-sm disabled:bg-slate-100 disabled:text-slate-400"
                       type="number"
                       min={0}
                       value={sc.cap}
@@ -313,11 +388,13 @@ export default function ParameterPanel({
                         const v = Number(e.target.value);
                         setSprintCaps((prev) => prev.map((x) => (x.nr === sc.nr ? { ...x, cap: v } : x)));
                       }}
+                      disabled={autoBudgetFromFte}
                     />
                     <button
                       type="button"
-                      className="rounded-lg border border-slate-300 px-2 py-1.5 text-xs hover:bg-slate-50"
+                      className="rounded-lg border border-slate-300 px-2 py-1.5 text-xs hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
                       onClick={() => setSprintCaps((prev) => prev.filter((x) => x.nr !== sc.nr))}
+                      disabled={autoBudgetFromFte}
                     >
                       Entfernen
                     </button>

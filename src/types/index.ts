@@ -87,6 +87,9 @@ export interface SelectedDayInfo {
 export interface BurnData {
   totalPlanned: number;
   dateBudgetBreak: Date | null;
+  dateMonthBreak: Date | null;
+  dateSprintBreak: Date | null;
+  dateTotalBreak: Date | null;
 }
 
 export interface BarEntry {

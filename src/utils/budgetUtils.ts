@@ -49,9 +49,9 @@ export function statusReasonFor({
   remainingSprint,
   hasSprint,
 }: StatusInput & { hasSprint: boolean }): StatusReason {
-  if (hasSprint && remainingSprint < 0) return "sprint";
   if (remainingMonth < 0) return "month";
   if (remainingTotal < 0) return "total";
+  if (hasSprint && remainingSprint < 0) return "sprint";
   return "ok";
 }
 

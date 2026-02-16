@@ -94,6 +94,9 @@ export function useDailyRows({
     const bySprint = new Map<number, number>();
 
     let breakDate: Date | null = null;
+    let monthBreakDate: Date | null = null;
+    let sprintBreakDate: Date | null = null;
+    let totalBreakDate: Date | null = null;
 
     while (cur <= end) {
       const key = toISODate(cur);
@@ -118,6 +121,9 @@ export function useDailyRows({
       if (!breakDate && (rMonth < 0 || rSprint < 0 || rTotal < 0)) {
         breakDate = new Date(cur);
       }
+      if (!monthBreakDate && rMonth < 0) monthBreakDate = new Date(cur);
+      if (!sprintBreakDate && rSprint < 0) sprintBreakDate = new Date(cur);
+      if (!totalBreakDate && rTotal < 0) totalBreakDate = new Date(cur);
 
       rows.push({
         date: new Date(cur),
@@ -135,7 +141,13 @@ export function useDailyRows({
 
     return {
       dailyRows: rows,
-      burn: { totalPlanned: cumTotal, dateBudgetBreak: breakDate },
+      burn: {
+        totalPlanned: cumTotal,
+        dateBudgetBreak: breakDate,
+        dateMonthBreak: monthBreakDate,
+        dateSprintBreak: sprintBreakDate,
+        dateTotalBreak: totalBreakDate,
+      },
     };
   }, [dayHours, monthlyCap, parsed.end, parsed.sprintStart, parsed.start, sprintCaps, sprintCapDefault, sprintDays, totalBudget]);
 
